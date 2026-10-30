@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡De Re Chupete! | Hoy Cocino Yo</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <h1>¡De Re Chupete!</h1>
+        <span>Hoy Cocino Yo</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-cal-toggle" onclick="openCalendarModal()">
+          <i class="fa-solid fa-calendar-days"></i> Ver Calendario Mensual
+        </button>
+        <div id="user-header-status">
+          <button class="btn-login" onclick="toggleAuthModal('login')">
+            <i class="fa-solid fa-user"></i> Iniciar Sesión / Registrarse
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <!-- SECCIÓN PRIVADA PARA EL CLIENTE REGISTRADO / LOGUEADO -->
+    <div class="card" id="user-history-panel" style="display:none; padding:1.2rem; margin-bottom:1.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h3 style="color:var(--jojo-pink-dark);">
+          <i class="fa-solid fa-clock-rotate-left"></i> Mis Pedidos Realizados
+        </h3>
+        <div>
+          <button class="btn-admin" onclick="logoutUser()">Cerrar Sesión</button>
+          <button class="btn-login" style="background-color:#e63946;" onclick="confirmarBorrarCuenta()">Borrar Mi Cuenta</button>
+        </div>
+      </div>
+      <div id="mis-pedidos-lista" style="margin-top:1rem;"></div>
+    </div>
+
+    <div class="section-title">
+      <h2>Menú Disponible</h2>
+      <p>Aprovecha un 10% de descuento comprando un Combo (Plato + Postre + Bebida)</p>
+    </div>
+
+    <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+      <div class="menu-grid" id="menu-grid-cliente" style="flex: 2; min-width: 300px;"></div>
+
+      <div class="card" id="cart-box" style="flex: 1; min-width: 280px; padding: 1.2rem; display: none; position: sticky; top: 90px;">
+        <h3 style="color: var(--jojo-pink-dark); margin-bottom: 0.8rem;">
+          <i class="fa-solid fa-cart-shopping"></i> Tu Pedido
+        </h3>
+        <div id="cart-items-container"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="calendar-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-calendar-week"></i> Menú Programado del Mes</h3>
+        <button class="close-btn" onclick="closeCalendarModal()">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:#6c757d;">Consulta la disponibilidad de platillos para los próximos días.</p>
+      
+      <div class="full-calendar-grid" id="calendar-grid-container"></div>
+    </div>
+  </div>
+
+  <div id="auth-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <div style="display:flex; gap:10px;">
+          <button id="tab-login-btn" onclick="switchAuthTab('login')" class="btn-admin" style="padding:0.3rem 0.8rem;">Iniciar Sesión</button>
+          <button id="tab-register-btn" onclick="switchAuthTab('register')" class="btn-cal-toggle" style="padding:0.3rem 0.8rem;">Registrarse</button>
+        </div>
+        <button class="close-btn" onclick="toggleAuthModal()">&times;</button>
+      </div>
+
+      <form id="form-login" onsubmit="handleLoginEmail(event)" style="margin-top:10px;">
+        <div class="form-group">
+          <label>Correo Electrónico:</label>
+          <input type="email" id="login-email" required placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Contraseña:</label>
+          <input type="password" id="login-pass" required placeholder="******">
+        </div>
+        <button type="submit" class="btn-order">Ingresar</button>
+      </form>
+
+      <form id="form-register" onsubmit="handleRegisterUser(event)" style="display:none; margin-top:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" id="reg-nombre" required placeholder="Nombre">
+          </div>
+          <div class="form-group">
+            <label>Apellido:</label>
+            <input type="text" id="reg-apellido" required placeholder="Apellido">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>DNI:</label>
+          <input type="text" id="reg-dni" required placeholder="DNI">
+        </div>
+        <div class="form-group">
+          <label>Correo Electrónico:</label>
+          <input type="email" id="reg-email" required placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Contraseña:</label>
+          <input type="password" id="reg-pass" required placeholder="******">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label>Localidad:</label>
+            <input type="text" id="reg-localidad" value="Bahía Blanca">
+          </div>
+          <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="text" id="reg-telefono" placeholder="291...">
+          </div>
+        </div>
+        <button type="submit" class="btn-order">Crear Cuenta</button>
+      </form>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="whatsapp-box">
+      <i class="fa-brands fa-whatsapp" style="color:#25d366;"></i>
+      <span>Pedí directo por WhatsApp: <strong>+54 9 291 475-3494</strong></span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    let productosGlobal = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkActiveUser();
+      renderCliente();
+    });
+
+    function checkActiveUser() {
+      const userRaw = localStorage.getItem('currentUser');
+      const headerBox = document.getElementById('user-header-status');
+      const historyPanel = document.getElementById('user-history-panel');
+      
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        if (user.rol === 'admin') {
+          headerBox.innerHTML = `
+            <a href="admin.html" class="btn-admin" style="text-decoration:none;">
+              <i class="fa-solid fa-screwdriver-wrench"></i> Panel Admin
+            </a>
+            <button class="btn-login" onclick="logoutUser()" style="background-color:#e63946; margin-left:5px;">Salir</button>
+          `;
+          historyPanel.style.display = 'none';
+        } else {
+          headerBox.innerHTML = `
+            <span style="font-size:0.9rem; font-weight:bold; margin-right:8px; color:var(--jojo-pink-dark);">Hola, ${user.nombre}!</span>
+            <button class="btn-login" onclick="logoutUser()" style="background-color:#e63946;">Salir</button>
+          `;
+          historyPanel.style.display = 'block';
+          cargarMisPedidos(user.id_cliente);
+        }
+      } else {
+        headerBox.innerHTML = `
+          <button class="btn-login" onclick="toggleAuthModal('login')">
+            <i class="fa-solid fa-user"></i> Iniciar Sesión / Registrarse
+          </button>
+        `;
+        historyPanel.style.display = 'none';
+      }
+    }
+
+    async function cargarMisPedidos(id_cliente) {
+      const res = await fetch(`api.php?action=get_mis_pedidos&id_cliente=${id_cliente}`);
+      const data = await res.json();
+      const container = document.getElementById('mis-pedidos-lista');
+
+      if (!data.data || data.data.length === 0) {
+        container.innerHTML = '<p style="font-size:0.85rem; color:#777;">Aún no realizaste ningún pedido.</p>';
+        return;
+      }
+
+      let html = '';
+      data.data.forEach(p => {
+        const fecha = new Date(p.fecha_hora).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        html += `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem; border-bottom:1px solid var(--jojo-border); font-size:0.85rem;">
+            <div>
+              <strong>Pedido #${p.id_pedido}</strong> (${p.tipo_menu}) - <small style="color:#666;">${fecha}</small>
+            </div>
+            <div>
+              <strong style="color:var(--jojo-pink-dark);">$${p.monto_total.toLocaleString('es-AR')}</strong>
+              <span class="badge" style="margin-left:8px; background-color:var(--jojo-turquoise-pastel); color:var(--jojo-text-dark);">${p.estado}</span>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    async function confirmarBorrarCuenta() {
+      const userRaw = localStorage.getItem('currentUser');
+      if (!userRaw) return;
+      const user = JSON.parse(userRaw);
+
+      if (confirm(`¿Está seguro de que desea borrar la cuenta de ${user.nombre}? Se eliminarán sus registros.`)) {
+        const res = await fetch('api.php?action=delete_cuenta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_cliente: user.id_cliente })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          alert('Tu cuenta ha sido eliminada correctamente.');
+          logoutUser();
+        }
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      window.location.reload();
+    }
+
+    function openCalendarModal() {
+      document.getElementById('calendar-modal').classList.add('active');
+      renderFullMonthCalendar();
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('calendar-modal').classList.remove('active');
+    }
+
+    function toggleAuthModal(mode = 'login') {
+      const modal = document.getElementById('auth-modal');
+      modal.classList.toggle('active');
+      if (modal.classList.contains('active')) switchAuthTab(mode);
+    }
+
+    function switchAuthTab(mode) {
+      const fLogin = document.getElementById('form-login');
+      const fReg = document.getElementById('form-register');
+      const bLogin = document.getElementById('tab-login-btn');
+      const bReg = document.getElementById('tab-register-btn');
+
+      if (mode === 'login') {
+        fLogin.style.display = 'block';
+        fReg.style.display = 'none';
+        bLogin.className = 'btn-admin';
+        bReg.className = 'btn-cal-toggle';
+      } else {
+        fLogin.style.display = 'none';
+        fReg.style.display = 'block';
+        bLogin.className = 'btn-cal-toggle';
+        bReg.className = 'btn-admin';
+      }
+    }
+
+    async function handleLoginEmail(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-pass').value;
+
+      const res = await fetch('api.php?action=login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: pass })
+      });
+
+      const data = await res.json();
+      if(data.status === 'success') {
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        
+        if (data.user.rol === 'admin') {
+          alert('¡Bienvenido Administrador! Redirigiendo al panel...');
+          window.location.href = 'admin.html';
+        } else {
+          alert(`¡Bienvenido/a, ${data.user.nombre}!`);
+          toggleAuthModal();
+          checkActiveUser();
+        }
+      } else {
+        alert(data.message);
+      }
+    }
+
+    async function handleRegisterUser(e) {
+      e.preventDefault();
+      const payload = {
+        nombre: document.getElementById('reg-nombre').value,
+        apellido: document.getElementById('reg-apellido').value,
+        dni: document.getElementById('reg-dni').value,
+        email: document.getElementById('reg-email').value,
+        password: document.getElementById('reg-pass').value,
+        localidad: document.getElementById('reg-localidad').value,
+        telefono: document.getElementById('reg-telefono').value
+      };
+
+      const res = await fetch('api.php?action=register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if(data.status === 'success') {
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        alert('¡Registro exitoso!');
+        toggleAuthModal();
+        checkActiveUser();
+      } else {
+        alert(data.message);
+      }
+    }
+
+    async function renderCliente() {
+      productosGlobal = await cargarViandas('');
+      const grid = document.getElementById('menu-grid-cliente');
+      if (!productosGlobal) return;
+
+      const postreSelectable = productosGlobal.find(p => p.badge === 'Postre' && p.stock > 0);
+      const bebidaSelectable = productosGlobal.find(p => p.badge === 'Bebida' && p.stock > 0);
+
+      let html = '';
+      productosGlobal.forEach(v => {
+        if (!v.available) return;
+
+        const sinStock = v.stock <= 0;
+        const badgeStock = sinStock 
+          ? `<span class="badge" style="background-color:#e63946;">SIN STOCK</span>`
+          : `<span class="badge" style="background-color:#2a9d8f;">Stock: ${v.stock} un.</span>`;
+
+        let agregadosHtml = '';
+        if (v.badge === 'Plato Principal' && !sinStock) {
+          agregadosHtml = `
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--jojo-border); font-size: 0.8rem;">
+              <strong style="color: var(--jojo-text-dark); display:block; margin-bottom: 4px;">Opciones de Compra:</strong>
+              
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <button class="btn-order" onclick='agregarAlCarrito(${JSON.stringify(v)})' style="padding:0.4rem; font-size:0.8rem;">
+                  Añadir Plato ($${v.price.toLocaleString('es-AR')})
+                </button>
+                
+                ${postreSelectable ? `
+                  <button class="btn-admin" onclick='agregarAlCarrito(${JSON.stringify(v)}); agregarAlCarrito(${JSON.stringify(postreSelectable)});' style="padding:0.4rem; font-size:0.75rem;">
+                    + Añadir ${postreSelectable.name} (+$${postreSelectable.price})
+                  </button>
+                ` : ''}
+
+                ${bebidaSelectable ? `
+                  <button class="btn-admin" onclick='agregarAlCarrito(${JSON.stringify(v)}); agregarAlCarrito(${JSON.stringify(bebidaSelectable)});' style="padding:0.4rem; font-size:0.75rem;">
+                    + Añadir ${bebidaSelectable.name} (+$${bebidaSelectable.price})
+                  </button>
+                ` : ''}
+
+                ${(postreSelectable && bebidaSelectable) ? `
+                  <button class="btn-login" onclick='agregarComboDirecto(${JSON.stringify(v)}, ${JSON.stringify(postreSelectable)}, ${JSON.stringify(bebidaSelectable)})' style="padding:0.4rem; font-size:0.75rem; background-color:var(--jojo-pink-dark);">
+                    <i class="fa-solid fa-star"></i> Comprar Combo (+10% OFF)
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        } else if (!sinStock) {
+          agregadosHtml = `
+            <button class="btn-order" onclick='agregarAlCarrito(${JSON.stringify(v)})' style="margin-top:10px;">
+              Añadir al Carrito ($${v.price.toLocaleString('es-AR')})
+            </button>
+          `;
+        } else {
+          agregadosHtml = `
+            <button class="btn-order" disabled style="margin-top:10px; background-color:#ccc; cursor:not-allowed;">
+              Sin Stock
+            </button>
+          `;
+        }
+
+        html += `
+          <article class="card" style="${sinStock ? 'opacity:0.7;' : ''}">
+            <div class="card-header">
+              <h3>${v.name}</h3>
+              <div>
+                <span class="badge">${v.badge}</span>
+                ${badgeStock}
+              </div>
+            </div>
+            <div class="card-image-wrapper">
+              <img src="${v.img}" alt="${v.name}">
+            </div>
+            <div class="dish-details">
+              <p style="font-size:0.85rem; color:#555; margin-bottom:8px;">${v.description || 'Deliciosa opción preparada con ingredientes frescos.'}</p>
+              <strong>$${v.price.toLocaleString('es-AR')}</strong>
+              ${agregadosHtml}
+            </div>
+          </article>
+        `;
+      });
+
+      grid.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin | Muñoz y Costazos</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header class="header no-print">
+    <div class="header-container">
+      <div class="logo">
+        <h1>¡De Re Chupete!</h1>
+        <span>Panel Administrador</span>
+      </div>
+      <a href="index.html" class="btn-login" style="text-decoration: none;">
+        <i class="fa-solid fa-store"></i> Vista Cliente
+      </a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <div class="card no-print" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <h3 style="color: var(--jojo-text-dark); margin-bottom: 1rem;">
+        <i class="fa-solid fa-calendar-plus"></i> Programar Menú en Calendario
+      </h3>
+      <form id="calendar-form" onsubmit="asignarCalendarioForm(event)" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
+          <label>Elegir Fecha:</label>
+          <input type="date" id="cal-fecha" required>
+        </div>
+        <div class="form-group" style="flex: 2; min-width: 200px; margin: 0;">
+          <label>Producto a Programar:</label>
+          <select id="cal-producto" required></select>
+        </div>
+        <div class="form-group" style="flex: 2; min-width: 200px; margin: 0;">
+          <label>Nota del Día:</label>
+          <input type="text" id="cal-notas" placeholder="Escriba una nota para el menú">
+        </div>
+        <button type="submit" class="btn-admin" style="height: 42px;">
+          <i class="fa-solid fa-floppy-disk"></i> Programar Fecha
+        </button>
+      </form>
+    </div>
+
+    <div class="card no-print" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <h3><i class="fa-solid fa-list-check"></i> Inventario y Gestión de Productos</h3>
+      <p style="font-size:0.85rem; color:#6c757d; margin-bottom: 1rem;">Gestione el stock disponible, precios y visibilidad.</p>
+      
+      <div class="form-group">
+        <input type="text" id="admin-search-input" placeholder="Buscar producto..." oninput="filtrarViandasAdmin()">
+      </div>
+      
+      <div id="viandas-list-admin" style="margin-top: 1rem;"></div>
+    </div>
+
+    <div class="card no-print" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <h3 id="form-title"><i class="fa-solid fa-pen-to-square"></i> Cargar / Modificar Producto</h3>
+      
+      <form id="admin-form" onsubmit="guardarViandaForm(event)" style="margin-top: 1rem;">
+        <input type="hidden" id="admin-id" value="0">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <div class="form-group">
+            <label>Nombre del Producto:</label>
+            <input type="text" id="admin-name" required placeholder="Nombre">
+          </div>
+
+          <div class="form-group">
+            <label>Categoría del Producto:</label>
+            <select id="admin-badge" required style="width:100%; padding: 0.6rem; border: 1px solid var(--jojo-border); border-radius: 10px;">
+              <option value="Plato Principal">Plato Principal</option>
+              <option value="Postre">Postre</option>
+              <option value="Bebida">Bebida</option>
+              <option value="Entrada">Entrada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Precio Unitario ($):</label>
+            <input type="number" id="admin-price" required min="0" step="0.01" placeholder="Precio">
+          </div>
+
+          <div class="form-group">
+            <label>Cantidad en Stock:</label>
+            <input type="number" id="admin-stock" required min="0" value="10" placeholder="Cantidad disponible">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción del Producto:</label>
+          <textarea id="admin-description" rows="2" style="width:100%; padding: 0.6rem; border: 1px solid var(--jojo-border); border-radius: 10px;" placeholder="Detalles de preparación"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Imagen del Producto:</label>
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--jojo-pink-dark); margin-bottom: 8px;"></i>
+            <p>Arrastre una imagen aquí o haga clic para seleccionar</p>
+            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+          </div>
+          <input type="url" id="admin-img" required placeholder="URL de la imagen" style="margin-top: 10px;" value="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80">
+          <div id="image-preview-wrapper" style="margin-top: 10px; display: none;">
+            <img id="image-preview" src="" style="max-height: 120px; border-radius: 10px; border: 2px solid var(--jojo-turquoise-pastel);">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-container">
+            <input type="checkbox" id="admin-available" checked>
+            <span class="checkmark"></span>
+            ¿Disponible para vender Hoy?
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn-order">Guardar Producto</button>
+          <button type="button" class="btn-admin" onclick="limpiarFormularioAdmin()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- HISTORIAL DE PEDIDOS CON DATOS COMPLETOS DE ENTREGA -->
+    <div class="card" style="padding: 1.5rem;">
+      <h3><i class="fa-solid fa-receipt"></i> Pedidos Recibidos y Control de Entregas</h3>
+      
+      <div class="date-filter-box no-print">
+        <div class="form-group" style="margin: 0;">
+          <label>Desde:</label>
+          <input type="date" id="filter-desde">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Hasta:</label>
+          <input type="date" id="filter-hasta">
+        </div>
+        <button class="btn-admin" onclick="consultarPedidosPeriodo()">
+          <i class="fa-solid fa-filter"></i> Filtrar
+        </button>
+        <button class="btn-order" onclick="exportarInforme()" style="width: auto; background-color: var(--jojo-pink-dark); color: #fff;">
+          <i class="fa-solid fa-file-pdf"></i> Exportar
+        </button>
+      </div>
+
+      <div class="summary-cards-container">
+        <div class="summary-card">
+          <span>Menúes Pedidos</span>
+          <strong id="stat-total-menus">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>Total Recaudado</span>
+          <strong id="stat-total-recaudado">$0</strong>
+        </div>
+      </div>
+
+      <div class="ticket-rack-container">
+        <div class="ticket-wire"></div>
+        <div id="tickets-rack" class="tickets-rack"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('filter-desde').value = hoy;
+      document.getElementById('filter-hasta').value = hoy;
+      document.getElementById('cal-fecha').value = hoy;
+
+      setupDragAndDrop();
+      cargarListaAdmin();
+      consultarPedidosPeriodo();
+      cargarSelectorProductos();
+    });
+
+    function setupDragAndDrop() {
+      const dropZone = document.getElementById('drop-zone');
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+        dropZone.addEventListener(eName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+      });
+      ['dragenter', 'dragover'].forEach(eName => {
+        dropZone.addEventListener(eName, () => dropZone.classList.add('dragover'), false);
+      });
+      ['dragleave', 'drop'].forEach(eName => {
+        dropZone.addEventListener(eName, () => dropZone.classList.remove('dragover'), false);
+      });
+      dropZone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length > 0) processImageFile(e.dataTransfer.files[0]);
+      }, false);
+    }
+
+    function handleFileSelect(e) {
+      if (e.target.files.length > 0) processImageFile(e.target.files[0]);
+    }
+
+    function processImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('admin-img').value = e.target.result;
+        const prev = document.getElementById('image-preview');
+        prev.src = e.target.result;
+        document.getElementById('image-preview-wrapper').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function cargarListaAdmin(busqueda = '') {
+      const viandas = await cargarViandas(busqueda);
+      const container = document.getElementById('viandas-list-admin');
+      if (!viandas) return;
+
+      if (viandas.length === 0) {
+        container.innerHTML = '<p style="padding:1rem; color:#888;">No hay productos registrados.</p>';
+        return;
+      }
+
+      let html = '';
+      viandas.forEach(v => {
+        const stockBadge = v.stock > 0 
+          ? `<span style="color:#2a9d8f; font-weight:bold;">Stock: ${v.stock} un.</span>` 
+          : `<span style="color:#e63946; font-weight:bold;">SIN STOCK</span>`;
+
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem; border-bottom: 1px solid var(--jojo-border); background: #fff; margin-bottom: 0.5rem; border-radius: 10px; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <img src="${v.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+              <div>
+                <strong>${v.name}</strong> - $${v.price.toLocaleString('es-AR')}
+                <br><small style="color: #666;">Categoría: <strong>${v.badge}</strong> | ${stockBadge}</small>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <label class="checkbox-container" style="margin:0;">
+                <input type="checkbox" ${v.available ? 'checked' : ''} onchange="cambiarDisponibilidad(${v.id}, this.checked)">
+                Disponible Hoy
+              </label>
+              <button class="btn-admin" onclick='cargarEnFormulario(${JSON.stringify(v)})'>
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              <button class="btn-login" style="background-color:#e63946;" onclick="eliminarProductoAdmin(${v.id})">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function filtrarViandasAdmin() {
+      const q = document.getElementById('admin-search-input').value;
+      cargarListaAdmin(q);
+    }
+
+    function cargarEnFormulario(v) {
+      document.getElementById('admin-id').value = v.id;
+      document.getElementById('admin-name').value = v.name;
+      document.getElementById('admin-description').value = v.description || '';
+      document.getElementById('admin-badge').value = v.badge;
+      document.getElementById('admin-price').value = v.price;
+      document.getElementById('admin-stock').value = v.stock;
+      document.getElementById('admin-img').value = v.img;
+      document.getElementById('admin-available').checked = v.available;
+      
+      const prev = document.getElementById('image-preview');
+      prev.src = v.img;
+      document.getElementById('image-preview-wrapper').style.display = 'block';
+
+      document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Editando: ${v.name}`;
+      window.scrollTo({ top: document.getElementById('admin-form').offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function limpiarFormularioAdmin() {
+      document.getElementById('admin-id').value = 0;
+      document.getElementById('admin-form').reset();
+      document.getElementById('image-preview-wrapper').style.display = 'none';
+      document.getElementById('form-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Cargar / Modificar Producto`;
+    }
+
+    async function guardarViandaForm(event) {
+      event.preventDefault();
+      const payload = {
+        id: parseInt(document.getElementById('admin-id').value),
+        name: document.getElementById('admin-name').value,
+        description: document.getElementById('admin-description').value,
+        badge: document.getElementById('admin-badge').value,
+        price: parseFloat(document.getElementById('admin-price').value),
+        stock: parseInt(document.getElementById('admin-stock').value),
+        img: document.getElementById('admin-img').value,
+        available: document.getElementById('admin-available').checked
+      };
+
+      await guardarVianda(payload);
+      limpiarFormularioAdmin();
+      cargarListaAdmin();
+      cargarSelectorProductos();
+    }
+
+    async function eliminarProductoAdmin(id) {
+      if (confirm('¿Desea eliminar este producto?')) {
+        await eliminarProducto(id);
+        cargarListaAdmin();
+        cargarSelectorProductos();
+      }
+    }
+
+    async function cargarSelectorProductos() {
+      const viandas = await cargarViandas('');
+      const select = document.getElementById('cal-producto');
+      if (!viandas) return;
+      
+      let html = '';
+      viandas.forEach(v => {
+        html += `<option value="${v.id}">${v.badge.toUpperCase()}: ${v.name} ($${v.price}) - Stock: ${v.stock}</option>`;
+      });
+      select.innerHTML = html;
+    }
+
+    async function asignarCalendarioForm(e) {
+      e.preventDefault();
+      const payload = {
+        fecha: document.getElementById('cal-fecha').value,
+        id_producto: document.getElementById('cal-producto').value,
+        notas: document.getElementById('cal-notas').value
+      };
+
+      const res = await fetch('api.php?action=save_calendario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.status === 'success') alert('¡Programado en el calendario!');
+    }
+
+    async function consultarPedidosPeriodo() {
+      const desde = document.getElementById('filter-desde').value;
+      const hasta = document.getElementById('filter-hasta').value;
+      const reporte = await obtenerReportePedidos(desde, hasta);
+      if (!reporte) return;
+
+      document.getElementById('stat-total-menus').textContent = reporte.resumen.total_pedidos;
+      document.getElementById('stat-total-recaudado').textContent = '$' + reporte.resumen.total_recaudado.toLocaleString('es-AR');
+
+      const rack = document.getElementById('tickets-rack');
+      if (reporte.data.length === 0) {
+        rack.innerHTML = '<p style="color: #ffffff; padding: 2rem;">Sin pedidos registrados.</p>';
+        return;
+      }
+
+      let html = '';
+      reporte.data.forEach(p => {
+        const esEntregado = p.estado.toLowerCase() === 'entregado';
+        
+        html += `
+          <div class="papas-ticket" style="width:230px; min-width:230px;">
+            <div class="ticket-clip"></div>
+            <div class="ticket-header">
+              <span>ORDEN #${p.id_pedido}</span>
+            </div>
+            <div class="ticket-body" style="font-size:0.75rem; line-height:1.2;">
+              <p><strong>Cliente:</strong> ${p.cliente_nombre} ${p.cliente_apellido}</p>
+              <p><strong>Teléfono:</strong> ${p.telefono}</p>
+              <p><strong>Dirección:</strong> <span style="color:#d62828; font-weight:bold;">${p.direccion || 'Retiro en Local'}</span></p>
+              <p><strong>Pago:</strong> ${p.forma_pago}</p>
+              <p><strong>Menú:</strong> ${p.tipo_menu}</p>
+              <div class="ticket-price">$${p.monto_total.toLocaleString('es-AR')}</div>
+            </div>
+            
+            <div style="margin-top:6px; text-align:center;">
+              ${esEntregado ? `
+                <div class="ticket-footer" style="background-color:#2a9d8f; color:#fff;">ENTREGADO</div>
+              ` : `
+                <button onclick="cambiarEstadoPedidoAdmin(${p.id_pedido}, 'Entregado')" style="width:100%; padding:4px; font-weight:bold; font-size:0.7rem; background-color:#f72585; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+                  PENDIENTE (Marcar Entregado)
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      });
+      rack.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
